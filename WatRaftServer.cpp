@@ -69,7 +69,7 @@ void* WatRaftServer::send_append(void* param)
                     } else if (_return.success == false) {
 
                         // return failed , this isnt working fix it
-                        printf("lagging client\n");
+                        // printf("lagging client\n");
                         AEResult _return2;
                         _return2.success = false;
                         int32_t prev_log_index_c = raft->prev_log_index; 
@@ -109,7 +109,7 @@ void* WatRaftServer::send_append(void* param)
                     if (_return.success) {
                         vote_granted++;
                         if (vote_granted >= raft->majority) {
-                            printf("achieved quorum, commit and update statemachine\n");
+                            // printf("achieved quorum, commit and update statemachine\n");
                             // apply to state machine and or increment commit index
                             int sz = raft->entries.size();
                             for (int i = raft->commit_index+1; i<sz; i++) {
@@ -123,7 +123,7 @@ void* WatRaftServer::send_append(void* param)
                                 } else {
                                     raft->sm.insert(std::pair<std::string, std::string>(e.key, e.val));
                                 }
-                                printf("committing\n");
+                                // printf("committing\n");
                                 raft->writeToFile("c\n" );
                             }
                             // update committed values
@@ -131,7 +131,7 @@ void* WatRaftServer::send_append(void* param)
                         }
                     } else {
                         // return failed , this isnt working fix it
-                        printf("lagging client\n");
+                        // printf("lagging client\n");
                         AEResult _return2;
                         _return2.success = false;
                         int32_t prev_log_index_c = raft->prev_log_index; 
@@ -154,7 +154,7 @@ void* WatRaftServer::send_append(void* param)
         // printf("jump to updates prev %lu\n", raft->entries.size()-1);
         raft->prev_log_term = raft->entries[raft->entries.size()-1].term;
         // printf("end for, updating prev log entry to %d\n", raft->prev_log_index);
-        printf("\nprinting the log\n");
+        // printf("\nprinting the log\n");
         std::vector<Entry>::iterator it2 = raft->entries.begin();
         for (; it2 != raft->entries.end(); ++it2) {
             Entry e;
@@ -165,7 +165,7 @@ void* WatRaftServer::send_append(void* param)
             printf("%s\n", e.val.c_str());
         }
 
-        printf("wait to send next heartbeat\n");
+        // printf("wait to send next heartbeat\n");
         int rand = std::rand() % 1000000;
         int time = 1500000 + rand;
         usleep(time);
@@ -179,7 +179,7 @@ void WatRaftServer::candidateCall() {
     // start elections
     
     if (!votedForCurTerm) {
-        printf("candidate starting elections for term %d %d\n", this->term, this->votedForCurTerm);
+        // printf("candidate starting elections for term %d %d\n", this->term, this->votedForCurTerm);
         votedForCurTerm = true;
         this->term++;
         this->votesCollected = 1;
@@ -215,7 +215,7 @@ void WatRaftServer::candidateCall() {
                     client.request_vote(_return, term, candidate_id, last_log_index, last_log_term);
                     // vote for myself
                     if (_return.vote_granted) {
-                        printf("got vote\n");
+                        // printf("got vote\n");
                         this->votesCollected++;
                         if (this->votesCollected >= this->majority) {
                             this->wat_state.change_state(WatRaftState::LEADER);
@@ -247,21 +247,21 @@ void* WatRaftServer::start_time_out(void* param) {
         int time = 5000000 + rand;
         usleep(time);
         if (!raft->heartbeat) {
-            printf("Timed Out, change state to candidate\n");
+            // printf("Timed Out, change state to candidate\n");
             raft->wat_state.change_state(WatRaftState::CANDIDATE);
         }
             
         raft->heartbeat = false;
-        printf("\nprinting the log\n");
-        std::vector<Entry>::iterator it = raft->entries.begin();
-        for (; it != raft->entries.end(); ++it) {
-            Entry e;
-            e.term = it->term;
-            e.key = it->key;
-            e.val = it->val;
-            printf("%s ", e.key.c_str());
-            printf("%s\n", e.val.c_str());
-        }
+        // printf("\nprinting the log\n");
+        // std::vector<Entry>::iterator it = raft->entries.begin();
+        // for (; it != raft->entries.end(); ++it) {
+        //     Entry e;
+        //     e.term = it->term;
+        //     e.key = it->key;
+        //     e.val = it->val;
+        //     printf("%s ", e.key.c_str());
+        //     printf("%s\n", e.val.c_str());
+        // }
     }
     return NULL;
 }
@@ -322,7 +322,7 @@ void WatRaftServer::writeToFile(std::string input) {
     std::string str = ss.str();
 
     std::string name = "state" + str;
-    printf("writing to disk %s\n", name.c_str());
+    // printf("writing to disk %s\n", name.c_str());
     std::ofstream file(name.c_str(), std::fstream::out | std::fstream::app);
     file << input;
     file.close();
@@ -395,12 +395,12 @@ void WatRaftServer::recoverState(int node_id, const WatRaftConfig* config) {
 
     std::string name = "state" + str;
     if (std::ifstream(name.c_str())) {
-        printf("reading from file\n");
+        // printf("reading from file\n");
         std::string line;
         std::ifstream file(name.c_str());
-        printf("recovering from PERSISTENT STATE\n");
+        // printf("recovering from PERSISTENT STATE\n");
         while (std::getline(file, line)) {
-            printf("%s\n", line.c_str());
+            // printf("%s\n", line.c_str());
             addToState(line);
         }
         file.close();
@@ -428,7 +428,7 @@ WatRaftServer::WatRaftServer(int node_id, const WatRaftConfig* config)
 }
 
 WatRaftServer::~WatRaftServer() {
-    printf("In destructor of WatRaftServer\n");
+    // printf("In destructor of WatRaftServer\n");
     delete rpc_server;
 }
 

@@ -8,14 +8,12 @@
 namespace WatRaft {
 
 WatRaftHandler::WatRaftHandler(WatRaftServer* raft_server) : server(raft_server) {
-  // Your initialization goes here
 }
 
 WatRaftHandler::~WatRaftHandler() {}
 
 void WatRaftHandler::get(std::string& _return, const std::string& key) {
-    // Your implementation goes here
-    printf("get\n");
+    // printf("get\n");
     if (this->server->node_id == this->server->leader_id) {
         
         std::map<std::string, std::string>::iterator search = this->server->sm.find(key);
@@ -24,14 +22,14 @@ void WatRaftHandler::get(std::string& _return, const std::string& key) {
             _return = search->second;
         } else {
             // not found
-          printf("Key not found\n");
+          // printf("Key not found\n");
           WatRaftException err;
           err.error_code = WatRaftErrorType::KEY_NOT_FOUND;
           err.error_message = "key not available";
           throw err;
         }
     } else {
-      printf("put called on NOT LEADER, throw appropiate error\n");
+      // printf("put called on NOT LEADER, throw appropiate error\n");
       WatRaftException err;
       if (this->server->leader_id == -1) {
         err.error_code = WatRaftErrorType::LEADER_NOT_AVAILABLE;  
@@ -48,8 +46,7 @@ void WatRaftHandler::get(std::string& _return, const std::string& key) {
 }
 
 void WatRaftHandler::put(const std::string& key, const std::string& val) {
-    // Your implementation goes here
-    printf("put\n");
+    // printf("put\n");
     if (this->server->node_id == this->server->leader_id) {
       printf("put called on leader add to list of sending message\n");
       key_val kv;
@@ -80,8 +77,7 @@ void WatRaftHandler::append_entries(AEResult& _return,
                                     const std::vector<Entry> & entries,
                                     const int32_t leader_commit_index) 
 {
-    // Your implementation goes here
-    printf("apppend entries or heartbeat called\n");
+    // printf("apppend entries or heartbeat called\n");
     if (term < this->server->term) {
       _return.term = this->server->term;
       _return.success = false;
@@ -195,7 +191,7 @@ void WatRaftHandler::append_entries(AEResult& _return,
                   // return _return;
 
         } else {
-          printf("recovery called, trace to index\n");
+          // printf("recovery called, trace to index\n");
           _return.term = this->server->term;
           _return.success = false;
         }
@@ -210,7 +206,7 @@ void WatRaftHandler::request_vote(RVResult& _return,
                                   const int32_t last_log_index,
                                   const int32_t last_log_term) {
     // Your implementation goes here
-    printf("request_vote for term %d %d\n", term, this->server->term);
+    // printf("request_vote for term %d %d\n", term, this->server->term);
 
     bool check;
 
@@ -221,13 +217,13 @@ void WatRaftHandler::request_vote(RVResult& _return,
 
     if ((term > this->server->term) && check && !this->server->votedForCurTerm) {
       this->server->heartbeat = true;
-      printf("voting +vely\n");
+      // printf("voting +vely\n");
       // this->server->term = term;
       this->server->votedForCurTerm = true;
       _return.term = this->server->term;
       _return.vote_granted = true;
     } else {
-      printf("voting -vely\n");
+      // printf("voting -vely\n");
       _return.term = this->server->term;
       _return.vote_granted = false;
     }
@@ -236,7 +232,7 @@ void WatRaftHandler::request_vote(RVResult& _return,
 
 void WatRaftHandler::debug_echo(std::string& _return, const std::string& msg) {
     _return = msg;
-    printf("debug_echo\n");
+    // printf("debug_echo\n");
 }
 } // namespace WatRaft
 
